@@ -1,16 +1,17 @@
 class Ant {
     static sprites = [];
-    static dt = 1 / 60;
     static walkCyclesPerSec = 60;
-    static maxSpeed = 20;
-    static steerStrength = 10;
+    static maxSpeed = 80;
+    static steerStrength = 20;
+    static dirChangeTime = 1.5; // In seconds
+    static border = 100; // How close to the borders of the canvas the ant can get
+                        // before it's forced to go in the opposite direction. 
 
     time = 0;
-    angle = 0;
-    vel = createVector(0, -Ant.maxSpeed);
-
-    //Randomly set target for now
-    target = createVector(50, -50);
+    lastDirChangeTime = 0;
+    angle = 0; // Angle of ant's direction with the vertical
+    vel = p5.Vector.random2D().mult(Ant.maxSpeed / 2);
+    targetVel = this.vel;
 
     constructor(x = 0, y = 0) {
         this.pos = createVector(x, y);
@@ -27,24 +28,62 @@ class Ant {
         pop(); //ant
     }
 
-    update(){
-        this.target = createVector(mouseX, mouseY);
-        this.target.sub(width/2, height/2); //mouseX, mouseY are relative to top-left even after translate()
+    update(dt){
+        if(this.lastDirChangeTime >= Ant.dirChangeTime){
+            this.changeDir();
+        }
 
-        let targetDir = p5.Vector.sub(this.target, this.pos).normalize();
-        let targetVel = p5.Vector.mult(targetDir, Ant.maxSpeed);
+        this.handleWallCollision();
 
-        let acc = p5.Vector.sub(targetVel, this.vel);
+        let acc = p5.Vector.sub(this.targetVel, this.vel);
         acc.mult(Ant.steerStrength)
         acc.limit(Ant.steerStrength);
 
-        this.vel.add(p5.Vector.mult(acc, Ant.dt));
+        this.vel.add(p5.Vector.mult(acc, dt));
         this.vel.limit(Ant.maxSpeed);
 
-        this.pos.add(p5.Vector.mult(this.vel, Ant.dt));
+        this.pos.add(p5.Vector.mult(this.vel, dt));
 
         //-y coordinate because the screen's y axis direction is opposite of the cartesian one.
         this.angle = HALF_PI - Math.atan2(-this.vel.y, this.vel.x);
-        this.time += Ant.dt;
+
+        this.time += dt;
+        this.lastDirChangeTime += dt;
+    }
+
+    changeDir(){        
+        this.targetVel = p5.Vector.random2D().mult(Ant.maxSpeed);
+        this.lastDirChangeTime = 0;
+    }
+
+    handleWallCollision(){
+        if(this.pos.x > width/2 - Ant.border){
+            if(this.targetVel.x > 0){
+                this.targetVel.x *= -1;
+            }
+            this.targetVel.setMag(Ant.maxSpeed);
+            console.log("Crossing the right border");
+        }
+        else if(this.pos.x < -width/2 + Ant.border){
+            if(this.targetVel.x < 0){
+                this.targetVel.x *= -1;
+            }
+            this.targetVel.setMag(Ant.maxSpeed);
+            console.log("Crossing the right border");
+        }
+        if(this.pos.y > height/2 - Ant.border){
+            if(this.targetVel.y > 0){
+                this.targetVel.y *= -1;
+            }
+            this.targetVel.setMag(Ant.maxSpeed);
+            console.log("Crossing the bottom border");
+        }
+        else if(this.pos.y < -height/2 + Ant.border){
+            if(this.targetVel.y < 0){
+                this.targetVel.y *= -1;
+            }
+            this.targetVel.setMag(Ant.maxSpeed);
+            console.log("Crossing the top border");
+        }
     }
 }
