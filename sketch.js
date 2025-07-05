@@ -1,7 +1,8 @@
 let walk;
-let imgScale = 0.15;
 let imgWidth, imgHeight;
 let antWidth, antHeight;
+
+const imgScale = 0.15;
 const numAnts = 8; //Number of ants in a row/column of the square spritesheet
 const numSprites = 62;
 
@@ -45,9 +46,9 @@ function draw() {
     
     ant.show();
     ant.update(1 / 60);
-    if(frameCount % 60 == 0){
-        console.log("Ant's velocity: ", ant.vel.x, ant.vel.y);
+    // if(frameCount % 60 == 0){
+        // console.log("Ant's velocity: ", ant.vel.x, ant.vel.y);
         // console.log("Ant's position: ", ant.pos.x, ant.pos.y);
-        console.log("Ant's target velocity: ", ant.targetVel.x, ant.targetVel.y);
-    }
+        // console.log("Ant's target velocity: ", ant.targetVel.x, ant.targetVel.y);
+    // }
 }
