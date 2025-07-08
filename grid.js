@@ -50,7 +50,7 @@ class Cell {
         }
         if(this.toHomePheromone){
             this.toHomePheromone.update(dt);
-            
+
             if(this.toHomePheromone.intensity <= 0) {
                 this.removeToHomePheromone();
             }
@@ -58,22 +58,23 @@ class Cell {
     }
 
     show(){
-        if(this.hasFood) {
-            push();
-            stroke(255, 204, 0); // Yellow for food
-            strokeWeight(7);
-            point(this.pos.x, this.pos.y);
-            pop();
-        }
-
         if(this.toFoodPheromone) {
             this.toFoodPheromone.show();
         }
         if(this.toHomePheromone) {
             this.toHomePheromone.show();
         }
+        if(this.hasFood) {
+            push();
+            stroke(255, 204, 0); // Yellow for food
+            strokeWeight(7);
+            point(this.x, this.y);
+            pop();
+        }
     }
-}
+    
+
+}    
 
 class Grid {
     grid = [];
@@ -86,7 +87,7 @@ class Grid {
 
         for(let i = 0; i < this.rows; i++){
             for(let j = 0; j < this.cols; j++){
-                this.grid.push(new Cell(j, i));
+                this.grid.push(new Cell(j - gridWidth / 2 , i - gridHeight / 2));
             }
         }
     }
@@ -110,6 +111,19 @@ class Grid {
         let x = index % this.cols;
         let y = Math.floor(index / this.cols);
         return [x - this.cols / 2, y - this.rows / 2];
+    }
+
+    hasFood(x, y){
+        let ind = this.coordsToIndex(x, y);
+        if(ind == -1){
+            return false;
+        }
+        return this.grid[ind].hasFood;
+    }
+
+    removeFood(x, y){
+        let ind = this.coordsToIndex(x, y);
+        this.grid[ind].removeFood();
     }
 
     show(){

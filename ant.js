@@ -20,9 +20,12 @@ class Ant {
     vel = p5.Vector.random2D().setMag(Ant.maxSpeed);
     targetVel = this.vel;
 
-    constructor(x, y, grid) {
+    pheromonePhase = PheromoneType.toHome;
+
+    constructor(x, y, grid, homeColony) {
         this.pos = createVector(x, y);
         this.grid = grid;
+        this.homeColony = homeColony; // p5 vector
     }
 
     show(){
@@ -37,6 +40,11 @@ class Ant {
 
         rotate(angle); //Rotates about the origin
         image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
+
+        //For debugging hitbox
+        // noFill();
+        // circle(0, 0, 10*2);
+
         pop(); //ant
     }
 
@@ -46,14 +54,53 @@ class Ant {
         }
 
         if(this.lastPheromoneDropTime >= Ant.pheromoneDropTime){
-            let pheromone = new Pheromone(this.pos.x, this.pos.y, PheromoneType.toHome);
-            this.grid.addPheromone(this.pos.x, this.pos.y, pheromone);
-
-            this.lastPheromoneDropTime = 0;
+            this.dropPheromone();
         }
         
         this.handleWallCollision();
-        
+
+        if(this.pheromonePhase === PheromoneType.toHome){
+            this.checkFood();
+        }
+        else{
+            this.checkHome();
+        }
+
+        this.updatePosition(dt);
+
+        this.time += dt;
+        this.lastDirChangeTime += dt;
+        this.lastPheromoneDropTime += dt;
+    }
+
+    checkFood(){
+        let points = getPointsInCircle(this.pos.x, this.pos.y, 10);
+
+        for(let point of points){
+            if(this.grid.hasFood(point[0], point[1])){
+                this.grid.removeFood(point[0], point[1]);
+
+                this.pheromonePhase = PheromoneType.toFood;
+
+                this.vel.mult(-1);
+                this.targetVel = this.vel;
+                return;
+            }
+        }
+    }
+
+    checkHome(){
+        let home = this.homeColony.home;
+        if(p5.Vector.sub(home, this.pos).magSq() <= Colony.radius * Colony.radius){
+            // Now it should start checking for food and start dropping toHome pheromones
+            this.pheromonePhase = PheromoneType.toHome;
+
+            this.vel.mult(-1);
+            this.targetVel = this.vel;
+        }
+    }
+
+    updatePosition(dt){
         let acc = p5.Vector.sub(this.targetVel, this.vel);
         acc.mult(Ant.steerStrength)
         acc.limit(Ant.steerStrength);
@@ -66,13 +113,13 @@ class Ant {
         //Don't let the ant go out of bounds.
         this.pos.x = constrain(this.pos.x, -width/2, width/2);
         this.pos.y = constrain(this.pos.y, -height/2, height/2);
+    }
 
-        // this.pos.x = Math.floor(this.pos.x);
-        // this.pos.y = Math.floor(this.pos.y);
-        
-        this.time += dt;
-        this.lastDirChangeTime += dt;
-        this.lastPheromoneDropTime += dt;
+    dropPheromone(){
+        let pheromone = new Pheromone(this.pos.x, this.pos.y, this.pheromonePhase);
+        this.grid.addPheromone(this.pos.x, this.pos.y, pheromone);
+
+        this.lastPheromoneDropTime = 0;
     }
 
     changeDir(){        
