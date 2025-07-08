@@ -12,7 +12,7 @@ function preload(){
     walk = loadImage("walk.png");
 }
 
-function getCoords(spriteNum){
+function getSpriteCoords(spriteNum){
     let x = (spriteNum % numAnts) * antWidth;
     let y = Math.floor(spriteNum / numAnts) * antHeight;
     return [x ,y];
@@ -31,24 +31,28 @@ function setup() {
     antHeight = walk.height / numAnts;
     
     for(let i = 0; i < numSprites; i++){
-        let pos = getCoords(i);
+        let pos = getSpriteCoords(i);
         let ant = walk.get(pos[0], pos[1], antWidth, antHeight);
         
         Ant.sprites.push(ant);
     }
     
-    ant = new Ant();
+    grid = new Grid(width, height);
+    ant = new Ant(0, 0, grid);
 }
 
 function draw() {
     background(220);
     translate(width/2, height/2);
     
+    grid.show(); //This comes first so that the pheromones and food are drawn below the ant.
     ant.show();
     ant.update(1 / 60);
-    // if(frameCount % 60 == 0){
-        // console.log("Ant's velocity: ", ant.vel.x, ant.vel.y);
-        // console.log("Ant's position: ", ant.pos.x, ant.pos.y);
-        // console.log("Ant's target velocity: ", ant.targetVel.x, ant.targetVel.y);
+    grid.update(1 / 60);
+
+    // if(frameCount % 60 === 0){
+    //     console.log("Ant's position: ", ant.pos.x, ant.pos.y);
+    //     console.log("Ant's velocity: ", ant.vel.x, ant.vel.y);
+    //     console.log("Ant's target velocity: ", ant.targetVel.x, ant.targetVel.y);
     // }
 }

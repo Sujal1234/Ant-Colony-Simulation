@@ -2,23 +2,27 @@ class Ant {
     static sprites = [];
 
     static walkCyclesPerSec = 60;
-    
+
     static maxSpeed = 80;
     static steerStrength = 20;
 
     static dirChangeTime = 1.5; // In seconds
+    static pheromoneDropTime = 0.5; // In seconds
 
     static border = 100; // How close to the borders of the canvas the ant can get
                         // before it's forced to go in the opposite direction. 
 
     time = 0;
     lastDirChangeTime = 0;
+    lastPheromoneDropTime = 0;
+
     angle = 0; // Angle of ant's direction with the vertical
     vel = p5.Vector.random2D().setMag(Ant.maxSpeed);
     targetVel = this.vel;
 
-    constructor(x = 0, y = 0) {
+    constructor(x, y, grid) {
         this.pos = createVector(x, y);
+        this.grid = grid;
     }
 
     show(){
@@ -27,7 +31,11 @@ class Ant {
         push(); // ant
         imageMode(CENTER);
         translate(this.pos.x, this.pos.y); //Set origin to ant's position.
-        rotate(this.angle); //Rotates about the origin
+
+        //-y coordinate because the screen's y axis direction is opposite of the cartesian one.
+        let angle = HALF_PI - Math.atan2(-this.vel.y, this.vel.x);
+
+        rotate(angle); //Rotates about the origin
         image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
         pop(); //ant
     }
@@ -36,6 +44,15 @@ class Ant {
         if(this.lastDirChangeTime >= Ant.dirChangeTime){
             this.changeDir();
         }
+
+        if(this.lastPheromoneDropTime >= Ant.pheromoneDropTime){
+            let pheromone = new Pheromone(this.pos.x, this.pos.y, PheromoneType.toHome);
+            this.grid.addPheromone(this.pos.x, this.pos.y, pheromone);
+
+            this.lastPheromoneDropTime = 0;
+        }
+        
+        this.handleWallCollision();
         
         let acc = p5.Vector.sub(this.targetVel, this.vel);
         acc.mult(Ant.steerStrength)
@@ -49,14 +66,13 @@ class Ant {
         //Don't let the ant go out of bounds.
         this.pos.x = constrain(this.pos.x, -width/2, width/2);
         this.pos.y = constrain(this.pos.y, -height/2, height/2);
-        
-        this.handleWallCollision();
-        
-        //-y coordinate because the screen's y axis direction is opposite of the cartesian one.
-        this.angle = HALF_PI - Math.atan2(-this.vel.y, this.vel.x);
+
+        // this.pos.x = Math.floor(this.pos.x);
+        // this.pos.y = Math.floor(this.pos.y);
         
         this.time += dt;
         this.lastDirChangeTime += dt;
+        this.lastPheromoneDropTime += dt;
     }
 
     changeDir(){        
