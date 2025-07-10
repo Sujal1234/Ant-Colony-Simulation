@@ -48,11 +48,8 @@ function setup() {
     createCanvas(1100, 500, WEBGL);
     frameRate(60);
     
-    antsLayer = createGraphics(width, height);
     pherLayer = createFramebuffer();
-    
-    // pherLayer.translate(width/2, height/2);
-    antsLayer.translate(width/2, height/2);
+    antsLayer = createFramebuffer();
     
     imgWidth = walk.width * imgScale;
     imgHeight = walk.height * imgScale;
@@ -86,10 +83,6 @@ function setup() {
 
 function draw() {
     background(220);
-    
-    // clear and reset transforms on each layer
-    // pherLayer.clear();
-    antsLayer.clear();
     
     // draw pheromones & food first, then ants
     grid.show(pherLayer);

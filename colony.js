@@ -10,15 +10,22 @@ class Colony {
     }
 
     show(layer){
-        layer.push();
-        layer.noStroke();
-        layer.fill(0, 0, 255);
-        layer.circle(this.home.x, this.home.y, Colony.radius * 2);
-        layer.pop();
+        layer.begin();
+        clear();
+        
+        push();
+        noStroke();
+        fill(0, 0, 255);
+        circle(this.home.x, this.home.y, Colony.radius * 2);
+        pop();
 
+        push();
+        imageMode(CENTER);
         for(let ant of this.ants){
-            ant.show(layer);
+            ant.show();
         }
+        pop();
+        layer.end();
     }
 
     update(dt){

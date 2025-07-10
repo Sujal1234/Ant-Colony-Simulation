@@ -28,24 +28,25 @@ class Ant {
         this.homeColony = homeColony; // p5 vector
     }
 
-    show(layer){
+    show(){
         let sprite = Ant.sprites[Math.floor(this.time * Ant.walkCyclesPerSec) % numSprites];
         
-        layer.push(); // ant
-        layer.imageMode(CENTER);
-        layer.translate(this.pos.x, this.pos.y); //Set origin to ant's position.
+        push(); // ant
+        translate(this.pos.x, this.pos.y); //Set origin to ant's position.
 
         //-y coordinate because the screen's y axis direction is opposite of the cartesian one.
         let angle = HALF_PI - Math.atan2(-this.vel.y, this.vel.x);
 
-        layer.rotate(angle); //Rotates about the origin
-        layer.image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
+        rotate(angle); //Rotates about the origin
+        
+        // Image mode is center (set in Colony)
+        image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
 
         //For debugging hitbox
         // noFill();
         // circle(0, 0, 10*2);
-
-        layer.pop(); //ant
+        
+        pop(); //ant
     }
 
     update(dt){
