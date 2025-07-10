@@ -4,7 +4,7 @@ class Ant {
     static walkCyclesPerSec = 60;
 
     static maxSpeed = 80;
-    static steerStrength = 20;
+    static steerStrength = 25;
 
     static dirChangeTime = 1.5; // In seconds
     static pheromoneDropTime = 0.5; // In seconds
@@ -28,24 +28,24 @@ class Ant {
         this.homeColony = homeColony; // p5 vector
     }
 
-    show(){
+    show(layer){
         let sprite = Ant.sprites[Math.floor(this.time * Ant.walkCyclesPerSec) % numSprites];
         
-        push(); // ant
-        imageMode(CENTER);
-        translate(this.pos.x, this.pos.y); //Set origin to ant's position.
+        layer.push(); // ant
+        layer.imageMode(CENTER);
+        layer.translate(this.pos.x, this.pos.y); //Set origin to ant's position.
 
         //-y coordinate because the screen's y axis direction is opposite of the cartesian one.
         let angle = HALF_PI - Math.atan2(-this.vel.y, this.vel.x);
 
-        rotate(angle); //Rotates about the origin
-        image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
+        layer.rotate(angle); //Rotates about the origin
+        layer.image(sprite, 0, 0, antWidth*imgScale, antHeight*imgScale);
 
         //For debugging hitbox
         // noFill();
         // circle(0, 0, 10*2);
 
-        pop(); //ant
+        layer.pop(); //ant
     }
 
     update(dt){

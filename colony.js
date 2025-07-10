@@ -9,14 +9,15 @@ class Colony {
         this.ants = Array.from({length: n || 1}, () => new Ant(x, y, grid, this));
     }
 
-    show(){
-        push();
-        fill(0, 0, 255);
-        circle(this.home.x, this.home.y, Colony.radius * 2);
-        pop();
+    show(layer){
+        layer.push();
+        layer.noStroke();
+        layer.fill(0, 0, 255);
+        layer.circle(this.home.x, this.home.y, Colony.radius * 2);
+        layer.pop();
 
         for(let ant of this.ants){
-            ant.show();
+            ant.show(layer);
         }
     }
 

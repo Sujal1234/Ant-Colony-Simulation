@@ -8,6 +8,8 @@ const numSprites = 62;
 
 let colony, grid;
 
+let antsLayer, pherLayer;
+
 function preload(){
     walk = loadImage("walk.png");
 }
@@ -43,10 +45,14 @@ function getPointsInCircle(x, y, radius){
 }
 
 function setup() {
-    createCanvas(window.innerWidth - 50, window.innerHeight - 50);
+    createCanvas(1100, 500, WEBGL);
     frameRate(60);
     
-    //   imgScale = height / walk.height
+    antsLayer = createGraphics(width, height);
+    pherLayer = createFramebuffer();
+    
+    // pherLayer.translate(width/2, height/2);
+    antsLayer.translate(width/2, height/2);
     
     imgWidth = walk.width * imgScale;
     imgHeight = walk.height * imgScale;
@@ -72,7 +78,7 @@ function setup() {
         for(let j = foodY - foodSize; j <= foodY + foodSize; j++){
             let index = grid.coordsToIndex(i, j);
             if(index !== -1){
-                grid.grid[index].addFood();
+                grid.cells[index].addFood();
             }
         }
     }
@@ -80,16 +86,16 @@ function setup() {
 
 function draw() {
     background(220);
-    translate(width/2, height/2);
     
-    grid.show(); //This comes first so that the pheromones and food are drawn below the ant.
-    colony.show();
+    // clear and reset transforms on each layer
+    // pherLayer.clear();
+    antsLayer.clear();
+    
+    // draw pheromones & food first, then ants
+    grid.show(pherLayer);
+    colony.show(antsLayer);
     colony.update(1 / 60);
-    grid.update(1 / 60);
-
-    // if(frameCount % 60 === 0){
-    //     console.log("Ant's position: ", ant.pos.x, ant.pos.y);
-    //     console.log("Ant's velocity: ", ant.vel.x, ant.vel.y);
-    //     console.log("Ant's target velocity: ", ant.targetVel.x, ant.targetVel.y);
-    // }
+    
+    image(pherLayer, -width/2, -height/2);
+    image(antsLayer, -width/2, -height/2);
 }

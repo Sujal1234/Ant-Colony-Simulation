@@ -67,7 +67,6 @@ class Cell {
         if(this.hasFood) {
             push();
             stroke(255, 204, 0); // Yellow for food
-            strokeWeight(7);
             point(this.x, this.y);
             pop();
         }
@@ -77,7 +76,7 @@ class Cell {
 }    
 
 class Grid {
-    grid = [];
+    cells = [];
 
     constructor(gridWidth, gridHeight){
         // x values from 0 to gridWidth are possible so we need gridWidth + 1 columns.
@@ -87,7 +86,7 @@ class Grid {
 
         for(let i = 0; i < this.rows; i++){
             for(let j = 0; j < this.cols; j++){
-                this.grid.push(new Cell(j - gridWidth / 2 , i - gridHeight / 2));
+                this.cells.push(new Cell(j - gridWidth / 2 , i - gridHeight / 2));
             }
         }
     }
@@ -105,7 +104,7 @@ class Grid {
     }
 
     indexToCoords(index){
-        if(index < 0 || index >= this.grid.length) {
+        if(index < 0 || index >= this.cells.length) {
             return null; // Out of bounds
         }
         let x = index % this.cols;
@@ -118,28 +117,31 @@ class Grid {
         if(ind == -1){
             return false;
         }
-        return this.grid[ind].hasFood;
+        return this.cells[ind].hasFood;
     }
 
     removeFood(x, y){
         let ind = this.coordsToIndex(x, y);
-        this.grid[ind].removeFood();
+        this.cells[ind].removeFood();
     }
 
-    show(){
-        for(const cell of this.grid) {
+    show(layer){
+        // layer.strokeWeight(7);
+        layer.begin();
+        clear();
+        for(const cell of this.cells) {
             cell.show();
         }
+        layer.end();
     }
 
     addPheromone(x, y, pheromone){
-        let cell = this.grid[this.coordsToIndex(x, y)];
-        // console.table(cell);
+        let cell = this.cells[this.coordsToIndex(x, y)];
         cell.addPheromone(pheromone);
     }
 
     update(dt){
-        for(const cell of this.grid) {
+        for(const cell of this.cells) {
             cell.update(dt);
         }
     }

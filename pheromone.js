@@ -26,7 +26,6 @@ class Pheromone {
         else {
             stroke(0, 153, 153, this.intensity * 255); // Blue-green while returning home
         }
-        strokeWeight(7);
         point(this.pos.x, this.pos.y);
         pop();
     }
